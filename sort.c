@@ -12,58 +12,84 @@
 
 #include "push_swap.h"
 
-void	two_sort(t_stack **stack_a)
+void	sort_two(t_stack **stack_a)
 {
 	if ((*stack_a)->number > (*stack_a)->next->number)
 		sa(stack_a);
 }
 
-void	three_sort(t_stack **stack_a)
+void	sort_three(t_stack **stack_a)
 {
-	int	a;
-	int	b;
-	int	c;
+	int	top;
+	int	mid;
+	int	bottom;
 
-	a = (*stack_a)->number;
-	b = (*stack_a)->next->number;
-	c = (*stack_a)->next->next->number;
-	if (a > b && b > c)
+	top = (*stack_a)->number;
+	mid = (*stack_a)->next->number;
+	bottom = (*stack_a)->next->next->number;
+	if (top > mid && mid < bottom)
 		sa(stack_a);
-	else if (a > b && b < c && a < c)
-		ra(stack_a);
-	else if (a > b && b < c && a > c)
+	else if (top > mid && mid > bottom && top < mid)
+	{
+		sa(stack_a);
 		rra(stack_a);
-	else if (a < b && a > c)
+	}
+	else if (top > mid && mid < bottom)
+		ra(stack_a);
+	else if (top < mid && mid > bottom && top > mid)
 	{
 		sa(stack_a);
 		ra(stack_a);
 	}
+	else if (top < mid && mid > bottom)
+		rra(stack_a);
 }
 
-void	five_sort(t_stack **stack_a, t_stack **stack_b)
+void	sort_five(t_stack **stack_a, t_stack **stack_b)
 {
-	if ((*stack_a)->number > (*stack_a)->next->number)
-		sa(stack_a);
-	else if ((*stack_a)->number < (*stack_a)->next->number 
-		&& (*stack_a)->next->number < (*stack_a)->next->next->number)
-		pb(stack_a, stack_b);
-	three_sort(stack_a);
-	if ((*stack_b)->number < (*stack_b)->next->number)
-		pa(stack_b, stack_a);
+	int	min1;
+	int	min2;
+
+	find_two_min(*stack_a, &min1, &min2);
+	while (stack_size(*stack_a) > 3)
+	{
+		if ((*stack_a)->number == min1 || (*stack_a)->number == min2)
+			pb(stack_a, stack_b);
+		else
+			ra(stack_a);
+	}
+	sort_three(stack_a);
+	while (*stack_b)
+	{
+		pa(stack_a, stack_b);
+		if ((*stack_a)->next && (*stack_a)->number > (*stack_a)->next->number)
+			sa(stack_a);
+	}
+	while (!is_sorted(*stack_a))
+	{
+		if ((*stack_a)->number > (*stack_a)->next->number)
+			sa(stack_a);
+	}
 }
 
-int	main()
+void	sort_large(t_stack **stack_a, t_stack **stack_b, int size)
 {
-	t_stack *a;
-	t_stack	*b;
+	int	start;
 
-	a = NULL;
-	b = NULL;
-	stack_addback(&a, stack_new(8));
-	stack_addback(&a, stack_new(3));
-	stack_addback(&a, stack_new(2));
-	stack_addback(&a, stack_new(4));
-	stack_addback(&a, stack_new(1));
-	five_sort(&a, &b);
-	return (0);
+	start = 0;
+	while (!is_sorted(*stack_a))
+	{
+		if ((*stack_a)->number <= start && (*stack_a)->number < start + size)
+			pb(stack_a, stack_b);
+		else
+			ra(stack_a);
+	}
+	start += size;
+	while (*stack_b)
+	{
+		pa(stack_a, stack_b);
+		if ((*stack_a)->next && (*stack_a)->number > (*stack_a)->next->number)
+			sa(stack_a);
+	}
 }
+
